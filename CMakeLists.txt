@@ -35,7 +35,7 @@ target_include_directories(
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
-set(header_libraries_directory "header_libraries-${PROJECT_VERSION}")
+set(header_libraries_directory "daw_header_libraries-${PROJECT_VERSION}")
 set(
     header_libraries_include_directory
     "${CMAKE_INSTALL_INCLUDEDIR}/${header_libraries_directory}"
@@ -54,7 +54,7 @@ install(
 )
 
 write_basic_package_version_file(
-    header_librariesConfigVersion.cmake
+    daw_header_librariesConfigVersion.cmake
     COMPATIBILITY SameMajorVersion
     ARCH_INDEPENDENT
 )
@@ -65,14 +65,14 @@ set(
 )
 
 install(
-    FILES "${PROJECT_BINARY_DIR}/header_librariesConfigVersion.cmake"
+    FILES "${PROJECT_BINARY_DIR}/daw_header_librariesConfigVersion.cmake"
     DESTINATION "${header_libraries_install_cmakedir}"
     COMPONENT header_libraries_Development
 )
 
 install(
     EXPORT header_librariesTargets
-    FILE header_librariesConfig.cmake
+    FILE daw_header_librariesConfig.cmake
     NAMESPACE daw::
     DESTINATION "${header_libraries_install_cmakedir}"
     COMPONENT header_libraries_Development
