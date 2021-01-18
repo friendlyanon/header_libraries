@@ -6,70 +6,78 @@
 # Official repository: https://github.com/beached/header_libraries
 #
 
-cmake_minimum_required( VERSION 3.13 ) 
+cmake_minimum_required(VERSION 3.14) 
 
-project( "header_libraries"
-	VERSION "1.5.0" 
-	DESCRIPTION "Various headers"
-	HOMEPAGE_URL "https://github.com/beached/header_libraries"
-	LANGUAGES C CXX)
-
-set( CMAKE_CXX_STANDARD 17 CACHE STRING "The C++ standard whose features are requested.")
-set( CMAKE_CXX_STANDARD_REQUIRED ON)
-set( CMAKE_CXX_EXTENSIONS OFF)
-
-option( DAW_ENABLE_TESTING "Build unit tests" OFF )
-
-include( GNUInstallDirs)
-set( header_libraries_INSTALL_CMAKEDIR
-	"${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake"
-	CACHE STRING
-	"The install directory to use for CMake package config files") 
-
-set( PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
-
-add_library( ${PROJECT_NAME} INTERFACE ) 
-add_library( daw::${PROJECT_NAME} ALIAS ${PROJECT_NAME} )
-
-if( DAW_ENABLE_TESTING )
-	enable_testing( )
-	add_subdirectory( tests )
-endif( )	
-
-target_compile_features( ${PROJECT_NAME} INTERFACE cxx_std_17)
-target_include_directories( ${PROJECT_NAME}
-	INTERFACE
-	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-	"$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+project(
+    header_libraries
+    VERSION 1.5.0
+    DESCRIPTION "Various headers"
+    HOMEPAGE_URL "https://github.com/beached/header_libraries"
+    LANGUAGES CXX
 )
 
-install( TARGETS ${PROJECT_NAME}
-	EXPORT ${PROJECT_NAME}_Targets
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+set(daw_header_libraries_warning_guard SYSTEM)
+if(daw_header_libraries_INCLUDE_WITHOUT_SYSTEM)
+  set(daw_header_libraries_warning_guard "")
+endif()
 
+add_library(header_libraries INTERFACE) 
+add_library(daw::header_libraries ALIAS header_libraries)
 
-include( CMakePackageConfigHelpers)
+target_compile_features(header_libraries INTERFACE cxx_std_17)
+target_include_directories(
+    header_libraries
+    ${daw_header_libraries_warning_guard}
+    INTERFACE
+    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+)
 
-configure_package_config_file( 
-	"${PROJECT_SOURCE_DIR}/cmake/daw_${PROJECT_NAME}Config.cmake.in"
-	"${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-	INSTALL_DESTINATION
-	${header_libraries_INSTALL_CMAKEDIR} )
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
 
-write_basic_package_version_file( "${PROJECT_NAME}ConfigVersion.cmake"
-	VERSION ${PROJECT_VERSION}
-	COMPATIBILITY SameMajorVersion)
+set(header_libraries_directory "header_libraries-${PROJECT_VERSION}")
+set(
+    header_libraries_include_directory
+    "${CMAKE_INSTALL_INCLUDEDIR}/${header_libraries_directory}"
+)
 
-install( EXPORT ${PROJECT_NAME}_Targets
-	FILE ${PROJECT_NAME}Targets.cmake
-	NAMESPACE daw::
-	DESTINATION ${header_libraries_INSTALL_CMAKEDIR})
+install(
+    DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
+    DESTINATION "${header_libraries_include_directory}"
+    COMPONENT header_libraries_Development
+)
 
-install( FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-	"${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-	DESTINATION ${header_libraries_INSTALL_CMAKEDIR}$ )
+install(
+  TARGETS header_libraries
+	EXPORT header_librariesTargets
+  INCLUDES DESTINATION "${header_libraries_include_directory}"
+)
 
-install( DIRECTORY ${PROJECT_SOURCE_DIR}/include/daw DESTINATION include)
-			
+write_basic_package_version_file(
+    header_librariesConfigVersion.cmake
+    COMPATIBILITY SameMajorVersion
+    ARCH_INDEPENDENT
+)
+
+set(
+    header_libraries_install_cmakedir
+    "${CMAKE_INSTALL_LIBDIR}/cmake/${header_libraries_directory}"
+)
+
+install(
+    FILES "${PROJECT_BINARY_DIR}/header_librariesConfigVersion.cmake"
+    DESTINATION "${header_libraries_install_cmakedir}"
+    COMPONENT header_libraries_Development
+)
+
+install(
+    EXPORT header_librariesTargets
+    FILE header_librariesConfig.cmake
+    NAMESPACE daw::
+    DESTINATION "${header_libraries_install_cmakedir}"
+    COMPONENT header_libraries_Development
+)
+
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+  include(CPack)
+endif()
